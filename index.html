@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pebblecem Industries - E-commerce Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a cleaner look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        :root {
+            --primary-color: #10B981; /* Emerald Green - for M-Pesa feel */
+            --secondary-color: #3B82F6; /* Blue */
+            --bg-color: #F9FAFB;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #059669; /* Darker green on hover */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal specific styling to ensure it's on top */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 50;
+        }
+        
+        .admin-edit-field {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tighter cursor-pointer" onclick="showPage('shop')">
+                Pebblecem<span class="text-green-500">Industries</span>
+            </h1>
+            <nav class="space-x-4 flex items-center">
+                <a href="javascript:void(0)" onclick="showPage('shop')" class="text-gray-600 hover:text-green-600 font-medium transition duration-150">Shop</a>
+                <a href="#payment" class="text-gray-600 hover:text-green-600 font-medium transition duration-150">Payments</a>
+                <a href="javascript:void(0)" onclick="showAdmin()" class="text-gray-600 hover:text-blue-600 font-medium transition duration-150">Admin</a>
+                
+                <button id="cart-button" class="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition duration-150">
+                    <!-- Shopping Cart Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-700">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 12.42a2 2 0 0 0 2 1.58h9.72a2 2 0 0 0 2-1.58L23 5H6"></path>
+                    </svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- --- SHOPPING INTERFACE --- -->
+    <div id="shop-page">
+        <!-- Main Content Area -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            
+            <!-- Hero Section -->
+            <section class="mb-16 text-center bg-white p-10 rounded-xl shadow-lg border-t-4 border-green-500">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Discover the Best Deals in Kenya</h2>
+                <p class="text-xl text-gray-600 mb-6">Secure your purchase with our fast, reliable, and primary M-Pesa checkout process.</p>
+                <a href="#products" class="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-lg text-white btn-primary shadow-lg">
+                    Start Shopping Now
+                </a>
+            </section>
+
+            <!-- Product Listing Section -->
+            <section id="products" class="pt-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 border-b-2 border-green-500 pb-2">Featured Products</h2>
+                
+                <!-- Dynamic Product List Container -->
+                <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Product cards will be dynamically inserted here by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Payment Methods Section -->
+            <section id="payment" class="mt-16 pt-8 bg-white p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 border-b-2 border-blue-500 pb-2">Accepted Payment Methods</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <!-- Primary Method: M-Pesa -->
+                    <div class="col-span-1 md:col-span-2 bg-green-50 border-4 border-green-500 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                            <!-- M-Pesa-like Logo Mockup -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-3">
+                                <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20z"></path>
+                                <path d="M12 16v-4"></path>
+                                <path d="M16 12h-4"></path>
+                                <path d="M8 12h4"></path>
+                                <path d="M12 8v4"></path>
+                            </svg>
+                            M-Pesa (Primary & Recommended)
+                        </h3>
+                        <p class="text-lg text-gray-700 mb-4">M-Pesa is our fastest and most reliable method for local transactions. Checkout will prompt a secure STK Push to your registered phone number.</p>
+                        
+                        <div class="space-y-3 p-4 bg-white rounded-md border border-green-300">
+                            <h4 class="font-semibold text-gray-800">Lipa Na M-Pesa Details:</h4>
+                            <ul class="text-gray-700 list-disc list-inside space-y-1">
+                                <li><span class="font-bold">Pay Bill No:</span> 900300 (Mock Account)</li>
+                                <li><span class="font-bold">Account No:</span> SOKO (or your name/invoice number)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Other Payment Methods -->
+                    <div class="col-span-1 bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Other Options</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center text-gray-700">
+                                <span class="font-semibold text-lg mr-2 text-blue-500">Card Payments</span>
+                                (VISA / MasterCard)
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <span class="font-semibold text-lg mr-2 text-red-500">Airtel Money</span>
+                                (Supported via third-party gateway)
+                            </li>
+                            <li class="flex items-center text-gray-700">
+                                <span class="font-semibold text-lg mr-2 text-indigo-500">Bank Transfer</span>
+                                (May take up to 24 hours)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- --- ADMIN INTERFACE --- -->
+    <div id="admin-page" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 class="text-4xl font-bold text-gray-800 mb-8 border-b-4 border-blue-500 pb-4">Admin Panel</h2>
+
+        <!-- Admin Login Form -->
+        <div id="admin-login" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm mx-auto">
+            <h3 class="text-2xl font-semibold mb-6 text-gray-800">Admin Login</h3>
+            <form onsubmit="event.preventDefault(); loginAdmin()">
+                <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input type="password" id="admin-password" placeholder="Enter Admin Password" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 mb-4" required>
+                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold shadow-md transition duration-150">
+                    Login
+                </button>
+                <p class="text-sm text-gray-500 mt-3 text-center">Hint: The password is 'admin' (client-side simulation)</p>
+            </form>
+        </div>
+
+        <!-- Admin Content (Product Editor) -->
+        <div id="admin-content" class="hidden bg-white p-8 rounded-xl shadow-lg mt-8">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-3xl font-bold text-gray-800">Product Editor</h3>
+                <button onclick="logoutAdmin()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition duration-150">
+                    Logout
+                </button>
+            </div>
+            
+            <!-- ADD NEW PRODUCT SECTION -->
+            <div class="mb-10 p-6 border-2 border-blue-200 rounded-xl bg-blue-50 shadow-inner">
+                <h4 class="text-2xl font-bold text-blue-700 mb-4">Add New Product</h4>
+                <form id="add-product-form" onsubmit="event.preventDefault(); addProduct()">
+                    <!-- Name -->
+                    <label class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" name="new-name" placeholder="Product Name" class="admin-edit-field" required>
+
+                    <!-- Description -->
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="new-description" placeholder="Product Description" class="admin-edit-field h-16 resize-none" required></textarea>
+
+                    <!-- Image URL -->
+                    <label class="block text-sm font-medium text-gray-700">Image URL</label>
+                    <input type="url" name="new-imageUrl" placeholder="e.g. https://placehold.co/600x400/..." class="admin-edit-field">
+
+                    <!-- Prices -->
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Price (KES)</label>
+                            <input type="number" name="new-price" placeholder="Current Price" class="admin-edit-field" required min="1">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Old Price (KES, Optional)</label>
+                            <input type="number" name="new-oldPrice" placeholder="Old Price" class="admin-edit-field" min="0">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold shadow-md transition duration-150 mt-4">
+                        Add Product to Catalog
+                    </button>
+                </form>
+            </div>
+            
+            <h4 class="text-2xl font-bold text-gray-700 mb-4 border-t pt-4">Current Products</h4>
+            <!-- List of Editable Products -->
+            <div id="admin-product-list" class="space-y-6">
+                <!-- Editable product blocks will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+            &copy; 2025 Pebblecem Industries. All rights reserved.
+        </div>
+    </footer>
+
+
+    <!-- Checkout Modal (Hidden by Default) -->
+    <div id="checkout-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100 p-6">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-2xl font-bold text-gray-900">Checkout</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <!-- Close Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M18 6L6 18"></path><path d="M6 6L18 18"></path></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-xl font-medium text-gray-700">Total: <span id="modal-total" class="text-green-600 font-bold ml-2">KES 0</span></p>
+
+                <!-- M-Pesa Payment Form -->
+                <div class="border border-green-500 bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-xl font-bold text-green-700 mb-3">Pay with M-Pesa</h4>
+                    <p class="text-sm text-gray-600 mb-4">Enter your M-Pesa registered number to receive an STK Push for payment confirmation.</p>
+                    <form id="mpesa-form">
+                        <label for="mpesa-number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (254...)</label>
+                        <input type="tel" id="mpesa-number" name="mpesa-number" placeholder="e.g., 2547XXXXXXXX" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 mb-4" 
+                               required pattern="254[7-9]\d{8}">
+                        
+                        <button type="submit" class="w-full btn-primary text-white py-2 rounded-lg font-semibold shadow-md">
+                            Confirm & Send M-Pesa Push
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Alternative Methods Placeholder -->
+                <div class="pt-4 border-t">
+                    <p class="text-sm text-gray-500 text-center">--- Or choose an alternative method ---</p>
+                    <div class="flex justify-center space-x-4 mt-3">
+                        <button class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Card</button>
+                        <button class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition duration-150">Airtel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Custom Alert/Message Box -->
+    <div id="message-box" class="fixed bottom-5 right-5 p-4 rounded-lg shadow-xl text-white transition-transform transform translate-x-full duration-300" style="min-width: 250px;">
+        <!-- Content inserted by JS -->
+    </div>
+
+    <script>
+        // --- Static Product Data (Editable by Admin) ---
+        // Image URLs use placehold.co as placeholders
+        let products = [
+            { id: 'prod-1', name: 'Flagship Android Phone', description: 'Sleek design, high-resolution camera, and all-day battery life. The best value in mobile technology.', price: 35000, oldPrice: 40000, imageUrl: "https://placehold.co/600x400/10B981/ffffff?text=Modern+Smartphone" },
+            { id: 'prod-2', name: 'Noise-Cancelling Earphones', description: 'Experience pure audio bliss. Active noise cancellation for your daily commute or work.', price: 4500, oldPrice: 5200, imageUrl: "https://placehold.co/600x400/3B82F6/ffffff?text=Wireless+Headphones" },
+            { id: 'prod-3', name: 'One-Touch Espresso Machine', description: 'Wake up to the perfect espresso every morning. Simple to use, professional results.', price: 12000, oldPrice: 15000, imageUrl: "https://placehold.co/600x400/F59E0B/ffffff?text=Premium+Coffee+Maker" }
+        ];
+
+        // --- DOM Elements ---
+        let cart = [];
+        let totalAmount = 0;
+        let isAdminLoggedIn = false;
+        const cartCountElement = document.getElementById('cart-count');
+        const modalTotalElement = document.getElementById('modal-total');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const mpesaForm = document.getElementById('mpesa-form');
+        const messageBox = document.getElementById('message-box');
+        const productList = document.getElementById('product-list');
+        const adminPage = document.getElementById('admin-page');
+        const shopPage = document.getElementById('shop-page');
+        const adminLogin = document.getElementById('admin-login');
+        const adminContent = document.getElementById('admin-content');
+        const adminProductList = document.getElementById('admin-product-list');
+
+
+        // Function to switch visible pages
+        function showPage(pageId) {
+            shopPage.classList.add('hidden');
+            adminPage.classList.add('hidden');
+
+            if (pageId === 'shop') {
+                shopPage.classList.remove('hidden');
+                renderProducts(); // Re-render products for shop
+            } else if (pageId === 'admin') {
+                adminPage.classList.remove('hidden');
+            }
+        }
+        
+        // Function to show custom message/alert
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            
+            // Set colors based on type
+            if (type === 'success') {
+                messageBox.style.backgroundColor = '#10B981'; // Green
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = '#EF4444'; // Red
+            } else {
+                messageBox.style.backgroundColor = '#F59E0B'; // Amber
+            }
+
+            // Show and then hide after 3 seconds
+            messageBox.classList.remove('translate-x-full', 'hidden');
+            
+            // Set a timeout to hide the box
+            setTimeout(() => {
+                messageBox.classList.add('translate-x-full');
+                setTimeout(() => {
+                    // Ensures it's fully hidden for screen readers/layout
+                    messageBox.classList.add('hidden'); 
+                }, 300); 
+            }, 3000);
+        }
+
+        // --- Product Rendering Logic ---
+
+        function renderProducts() {
+            productList.innerHTML = products.map(product => `
+                <!-- Product Card ${product.id} -->
+                <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <img src="${product.imageUrl}" 
+                         alt="${product.name}" 
+                         class="w-full h-48 object-cover object-center"
+                         onerror="this.onerror=null;this.src='https://placehold.co/600x400/9CA3AF/ffffff?text=Image+Not+Found'">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${product.name}</h3>
+                        <p class="text-gray-600 mb-4 flex-grow">${product.description}</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-green-600">KES ${product.price.toLocaleString()}</span>
+                            ${product.oldPrice ? `<span class="text-sm text-gray-500 line-through">KES ${product.oldPrice.toLocaleString()}</span>` : ''}
+                        </div>
+                        <div class="space-y-2 mt-2">
+                            <button onclick="addToCart('${product.id}')" class="w-full btn-primary text-white py-2 rounded-lg font-medium shadow-md">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+
+        // --- Cart Logic ---
+
+        // Function to update the cart display
+        function updateCartUI() {
+            totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+            const count = cart.length;
+            cartCountElement.textContent = count;
+            
+            if (count > 0) {
+                cartCountElement.classList.remove('hidden');
+                document.getElementById('cart-button').onclick = showModal;
+            } else {
+                cartCountElement.classList.add('hidden');
+                document.getElementById('cart-button').onclick = () => showMessage('Your cart is empty!', 'info');
+            }
+        }
+
+        // Add item to cart (now uses product ID)
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                cart.push({ id: product.id, name: product.name, price: product.price });
+                updateCartUI();
+                showMessage(`Added ${product.name} to cart. Total: KES ${totalAmount.toLocaleString()}`);
+            } else {
+                showMessage('Product not found.', 'error');
+            }
+        }
+
+        // Show the checkout modal
+        function showModal() {
+            if (cart.length === 0) {
+                showMessage('Your cart is empty! Add items to checkout.', 'info');
+                return;
+            }
+            modalTotalElement.textContent = `KES ${totalAmount.toLocaleString()}`;
+            checkoutModal.classList.remove('hidden');
+        }
+
+        // Close the checkout modal
+        function closeModal() {
+            checkoutModal.classList.add('hidden');
+        }
+
+        // Handle M-Pesa form submission (Simulation)
+        mpesaForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const number = document.getElementById('mpesa-number').value;
+            
+            // Basic validation
+            if (!/^2547\d{8}$/.test(number)) {
+                showMessage('Please enter a valid M-Pesa number starting with 2547.', 'error');
+                return;
+            }
+
+            showMessage(`Initiating M-Pesa push to ${number} for KES ${totalAmount.toLocaleString()}. Check your phone!`, 'info');
+            
+            // Simulate successful payment after a short delay
+            setTimeout(() => {
+                closeModal();
+                showMessage('Payment Confirmed! Your order is being processed. Thank you!', 'success');
+                
+                // Clear the cart for the next order
+                cart = [];
+                updateCartUI();
+            }, 3000); 
+        });
+
+
+        // --- Admin Panel Logic (Product CRUD) ---
+
+        function showAdmin() {
+            showPage('admin');
+            if (isAdminLoggedIn) {
+                adminLogin.classList.add('hidden');
+                adminContent.classList.remove('hidden');
+                renderAdminProducts();
+            } else {
+                adminLogin.classList.remove('hidden');
+                adminContent.classList.add('hidden');
+            }
+        }
+
+        function loginAdmin() {
+            const passwordInput = document.getElementById('admin-password');
+            const password = passwordInput.value;
+            const ADMIN_PASSWORD = 'admin'; // Hardcoded password for client-side simulation
+
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                passwordInput.value = ''; // Clear password field
+                showMessage('Admin login successful!', 'success');
+                showAdmin(); // Show content
+            } else {
+                showMessage('Invalid password.', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            showMessage('Logged out successfully.', 'info');
+            showAdmin(); // Show login form
+        }
+        
+        // Function to add a new product
+        function addProduct() {
+            const form = document.getElementById('add-product-form');
+            // Simple unique ID generation using timestamp
+            const newId = 'prod-' + Date.now();
+            
+            const newProduct = {
+                id: newId,
+                name: form.elements['new-name'].value,
+                description: form.elements['new-description'].value,
+                price: parseFloat(form.elements['new-price'].value),
+                // Set oldPrice to null if it's not a valid number or 0
+                oldPrice: parseFloat(form.elements['new-oldPrice'].value) > 0 ? parseFloat(form.elements['new-oldPrice'].value) : null,
+                // Default placeholder image if URL is empty
+                imageUrl: form.elements['new-imageUrl'].value || "https://placehold.co/600x400/9CA3AF/ffffff?text=New+Product"
+            };
+            
+            products.unshift(newProduct); // Add to the beginning of the list
+
+            form.reset(); // Clear form
+            showMessage(`New product "${newProduct.name}" added!`, 'success');
+            renderAdminProducts();
+            renderProducts();
+        }
+        
+        // Function to delete a product
+        function deleteProduct(productId) {
+            const productName = products.find(p => p.id === productId)?.name || 'Unknown Product';
+            const initialLength = products.length;
+            
+            // Filter out the product to delete
+            products = products.filter(p => p.id !== productId);
+
+            if (products.length < initialLength) {
+                showMessage(`Product "${productName}" removed successfully.`, 'success');
+            } else {
+                showMessage('Error: Product not found for deletion.', 'error');
+            }
+
+            renderAdminProducts();
+            renderProducts();
+            updateCartUI(); // Update cart in case the deleted item was in it (although cart logic is simplified)
+        }
+
+
+        function renderAdminProducts() {
+            if (products.length === 0) {
+                adminProductList.innerHTML = '<p class="text-gray-500 text-center py-8">No products in the catalog. Add one above!</p>';
+                return;
+            }
+            
+            adminProductList.innerHTML = products.map(product => `
+                <div class="border p-4 rounded-lg shadow-md bg-white flex flex-col md:flex-row md:space-x-4">
+                    <!-- Product Info and Image -->
+                    <div class="flex-shrink-0 mb-4 md:mb-0">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="w-24 h-24 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/100x100/9CA3AF/ffffff?text=No+Img'">
+                    </div>
+                    
+                    <!-- Edit Form -->
+                    <div class="flex-grow">
+                        <form id="edit-form-${product.id}" onsubmit="event.preventDefault(); saveProductEdit('${product.id}')">
+                            <h4 class="text-xl font-semibold mb-3 text-blue-700">${product.name} (ID: ${product.id})</h4>
+                            
+                            <!-- Name -->
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" name="name" value="${product.name}" class="admin-edit-field" required>
+                            
+                            <!-- Image URL -->
+                            <label class="block text-sm font-medium text-gray-700">Image URL</label>
+                            <input type="url" name="imageUrl" value="${product.imageUrl}" placeholder="Image URL" class="admin-edit-field">
+
+                            <!-- Description -->
+                            <label class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea name="description" class="admin-edit-field h-16 resize-none" required>${product.description}</textarea>
+
+                            <!-- Prices -->
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700">Price (KES)</label>
+                                    <input type="number" name="price" value="${product.price}" class="admin-edit-field" required min="1">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700">Old Price (KES, Optional)</label>
+                                    <input type="number" name="oldPrice" value="${product.oldPrice || ''}" class="admin-edit-field" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2 mt-2">
+                                <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition duration-150">
+                                    Save Changes
+                                </button>
+                                <button type="button" onclick="deleteProduct('${product.id}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold transition duration-150">
+                                    Delete Product
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveProductEdit(productId) {
+            const form = document.getElementById(`edit-form-${productId}`);
+            
+            const newName = form.elements['name'].value;
+            const newDescription = form.elements['description'].value;
+            const newPrice = parseFloat(form.elements['price'].value);
+            const newOldPrice = parseFloat(form.elements['oldPrice'].value) || 0;
+            const newImageUrl = form.elements['imageUrl'].value || "";
+
+            const productIndex = products.findIndex(p => p.id === productId);
+
+            if (productIndex !== -1) {
+                products[productIndex].name = newName;
+                products[productIndex].description = newDescription;
+                products[productIndex].price = newPrice;
+                products[productIndex].oldPrice = newOldPrice > 0 ? newOldPrice : null;
+                // Update Image URL, defaulting to the placeholder if cleared
+                products[productIndex].imageUrl = newImageUrl || "https://placehold.co/600x400/9CA3AF/ffffff?text=New+Product";
+
+                // Re-render the admin list and the main shop list
+                renderAdminProducts();
+                renderProducts();
+                showMessage(`Product "${newName}" updated successfully!`, 'success');
+            } else {
+                showMessage('Error: Product not found during save.', 'error');
+            }
+        }
+
+
+        // --- Initialization ---
+        // Render the initial products and set up the cart UI
+        window.onload = function() {
+            renderProducts();
+            updateCartUI();
+        }
+        
+        // Close modal when clicking outside (on the overlay)
+        checkoutModal.addEventListener('click', (e) => {
+            if (e.target === checkoutModal) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
